@@ -46,8 +46,8 @@ function Cart(){
 	me.shippingQuantityRate = 0;
 	me.shippingRate = 0;
 	me.shippingCost = 0;
-	me.currency = USD;
-	me.checkoutTo = PayPal;
+	me.currency = EUR;
+	me.checkoutTo = Google Checkout;
 	me.email = "";
 	me.merchantId	 = "";
 	me.successUrl = null;
