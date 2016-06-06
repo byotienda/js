@@ -48,7 +48,7 @@ function Cart(){
 	me.shippingRate = 0;
 	me.shippingCost = 0;
 	me.currency = EUR;
-	me.checkoutTo = Google Checkout;
+	me.checkoutTo = googleCheckout;
 	me.email = "";
 	me.merchantId	 = "";
 	me.successUrl = null;
