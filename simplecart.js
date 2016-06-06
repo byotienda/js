@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-var Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",IndonesianRupiah="IDR",IDR="IDR",AustralianDollar="AUD",AUD="AUD",CanadianDollar="CAD",CAD="CAD",CzechKoruna="CZK",CZK="CZK",DanishKrone="DKK",DKK="DKK",Euro="EUR",EUR="EUR",HongKongDollar="HKD",HKD="HKD",HungarianForint="HUF",HUF="HUF",IsraeliNewSheqel="ILS",ILS="ILS",JapaneseYen="JPY",JPY="JPY",MexicanPeso="MXN",MXN="MXN",NorwegianKrone="NOK",NOK="NOK",NewZealandDollar="NZD",NZD="NZD",PolishZloty="PLN",PLN="PLN",PoundSterling="GBP",GBP="GBP",SingaporeDollar="SGD",SGD="SGD",SwedishKrona="SEK",SEK="SEK",SwissFranc="CHF",CHF="CHF",ThaiBaht="THB",THB="THB",USDollar="USD",USD="USD";
+var Custom="Custom",GoogleCheckout="GoogleCheckout",PayPal="PayPal",Email="Email",BrazilianReal="BRL",BRL="BRL",AustralianDollar="AUD",AUD="AUD",CanadianDollar="CAD",CAD="CAD",CzechKoruna="CZK",CZK="CZK",DanishKrone="DKK",DKK="DKK",Euro="EUR",EUR="EUR",HongKongDollar="HKD",HKD="HKD",HungarianForint="HUF",HUF="HUF",IsraeliNewSheqel="ILS",ILS="ILS",JapaneseYen="JPY",JPY="JPY",MexicanPeso="MXN",MXN="MXN",NorwegianKrone="NOK",NOK="NOK",NewZealandDollar="NZD",NZD="NZD",PolishZloty="PLN",PLN="PLN",PoundSterling="GBP",GBP="GBP",SingaporeDollar="SGD",SGD="SGD",SwedishKrona="SEK",SEK="SEK",SwissFranc="CHF",CHF="CHF",ThaiBaht="THB",THB="THB",USDollar="USD",USD="USD";
 function Cart(){
 
 	var me = this;
@@ -36,6 +36,7 @@ function Cart(){
 	me.Shelf = null;
 	me.items = {};
 	me.isLoaded = false;
+	me.invoice = null;
 	me.pageIsReady = false;
 	me.quantity = 0;
 	me.total = 0;
@@ -54,11 +55,12 @@ function Cart(){
 	me.cancelUrl = null;
 	me.cookieDuration = 30; // default duration in days
 	me.storagePrefix = "sc_";
-	me.MAX_COOKIE_SIZE = 4000;
+	me.MAX_COOKIE_SIZE = 2000;
 	me.cartHeaders = ['Name','Price','Quantity','Total'];
 	me.events = {};
 	me.sandbox = false;
 	me.paypalHTTPMethod = "GET";
+	me.formapago = "";
 	/*
 		cart headers:
 		you can set these to which ever order you would like, and the cart will display the appropriate headers
@@ -84,7 +86,14 @@ function Cart(){
 
 
 	*/
-
+	/******************************************************
+			function for setting options 
+	 ******************************************************/
+	me.options = function( values ){
+		me.each(values, function( value , x , name ){
+			me[name]=value;
+		});
+	};
 
 
 
@@ -229,9 +238,9 @@ function Cart(){
 	 ******************************************************/
 
 	me.checkout = function() {
-		if( me.quantity === 0 ){
+		if( me.quantity == 0 ){
 			error("Cart is empty");
-			return false;
+			return;
 		}
 		switch( me.checkoutTo ){
 			case PayPal:
@@ -251,7 +260,6 @@ function Cart(){
 
 	me.paypalCheckout = function() {
 
-		
 		var form = document.createElement("form"),
 			counter=1,
 			current,
@@ -269,10 +277,15 @@ function Cart(){
 		form.appendChild(me.createHiddenElement("rm", me.paypalHTTPMethod == "POST" ? "2" : "0" ));
 		form.appendChild(me.createHiddenElement("upload", "1"));
 		form.appendChild(me.createHiddenElement("business", me.email ));
-		form.appendChild(me.createHiddenElement("currency_code", "me.currency"));
-		
+		form.appendChild(me.createHiddenElement("currency_code", me.currency));
+		form.appendChild(me.createHiddenElement("charset", "utf-8"));
+
+		if (me.invoice) {
+		    form.appendChild(me.createHiddenElement("invoice", me.invoice));
+		}
+
 		if( me.taxRate ){
-			form.appendChild(me.createHiddenElement("tax_cart",me.taxCost ));
+			form.appendChild(me.createHiddenElement("tax_cart", parseFloat(me.taxCost).toFixed(2)));
 		}
 		
 		if( me.shipping() !== 0){
@@ -385,10 +398,61 @@ function Cart(){
 
 
 
-	me.emailCheckout = function() {
-		return;
-	};
+me.emailCheckout = function() { 
+        var remite = document.getElementById("remite").value; 
+        var nombre = document.getElementById("nombre").value; 
+        var telefono = document.getElementById("telefono").value; 
+        var direccion = document.getElementById("direccion").value; 
+        var observaciones = document.getElementById("observaciones").value; 
+		
+        if (remite != '' && remite != null) {         
+            itemsString = ""; 
+            esubtotal = 0;
+			egastos = 0;
+            etotal = 0; 
+            for( var current in this.items ){ 
+              var item = this.items[current]; 
+              esubtotal = item.quantity * item.price; 
+              itemsString += item.name;
+			  if (item.size) itemsString += "Talla " + item.size + "\n";
+			  if (item.color) itemsString += "Color " + item.color + "\n";
+			  itemsString += item.quantity + " x " + item.price + " = " + String(esubtotal) + me.currency + "\n"; 		
+              etotal += esubtotal; 
+            }; 
+			itemsString += "\nSubtotal = " + etotal + me.currency +"\n";
+			if (me.shippingCost){
+			itemsString += "Gastos de envio = " + me.shippingCost + me.currency +"\n";
+			etotal += me.shippingCost; 
+			} else {itemsString += "Gastos de envio = GRATIS\n";}
+            itemsString +="\nTotal: " + String(etotal) + me.currency + "\n\n" + "Remitente: " + remite;
+			itemsString +="\n\nNombre: " + nombre + "\nTelefono: " + telefono;
+			itemsString +="\nDireccion: " + direccion + "\n\nObservaciones: " + observaciones;			
+			itemsString +="\n\nFORMA DE PAGO: " + formapago;			
+						
 
+            var form = document.createElement("form"); 
+               form.style.display = "none"; 
+               form.method = "POST"; 
+			   form.action = "http://singenio.com/email.php"; 
+               form.acceptCharset = "utf-8"; 
+               form.appendChild(this.createHiddenElement("jcitems", itemsString)); 
+               form.appendChild(this.createHiddenElement("jcremite", remite)); 
+ 
+            document.body.appendChild(form); 
+			me.empty();
+            form.submit(); 
+            document.body.removeChild(form); 
+            if (p == null || p==''); 
+             
+        }
+		else {
+		var error = document.getElementById("error");
+        var mensaje = "<b>La direccion de correo es imprescindible para poder contactar con Vd.</b>";
+		error.innerHTML = mensaje;
+		}
+		
+		return;	
+    }; 
 	me.customCheckout = function() {
 		return;
 	};
@@ -740,8 +804,6 @@ function Cart(){
 
 	me.currencySymbol = function() {
 		switch(me.currency){
-			case IDR:
-				return "Rp&nbsp;";
 			case CHF:
 				return "CHF&nbsp;";
 			case CZK:
