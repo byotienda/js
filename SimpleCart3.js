@@ -439,9 +439,7 @@ me.emailCheckout = function() {
         }
 		return;	
     }; 
-	me.customCheckout = function() {
-		return;
-	};
+
 
 
 
