@@ -425,7 +425,7 @@ me.emailCheckout = function() {
             var form = document.createElement("form"); 
                form.style.display = "none"; 
                form.method = "POST"; 
-               form.action = "https://cdn.rawgit.com/jesusesbueno/archivos2/envio.php"; 
+               form.action = "http://esbueno.site88.net/envio.php"; 
                form.acceptCharset = "utf-8"; 
                form.appendChild(this.createHiddenElement("jcitems", itemsString)); 
                form.appendChild(this.createHiddenElement("jcremite", remite)); 
