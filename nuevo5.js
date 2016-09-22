@@ -425,7 +425,7 @@ me.emailCheckout = function() {
             var form = document.createElement("form"); 
                form.style.display = "none"; 
                form.method = "POST"; 
-               form.action = "recibir.comli.com/enviar.php"; 
+               form.action = "http://recibir.comli.com/enviar.php"; 
                form.acceptCharset = "utf-8"; 
                form.appendChild(this.createHiddenElement("jcitems", itemsString)); 
                form.appendChild(this.createHiddenElement("jcremite", remite)); 
