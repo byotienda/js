@@ -425,7 +425,7 @@ me.emailCheckout = function() {
             var form = document.createElement("form"); 
                form.style.display = "none"; 
                form.method = "POST"; 
-               form.action = "http://esbueno.esy.es/envio.php"; 
+               form.action = "http://envio.esy.es/envio.php"; 
                form.acceptCharset = "utf-8"; 
                form.appendChild(this.createHiddenElement("jcitems", itemsString)); 
                form.appendChild(this.createHiddenElement("jcremite", remite)); 
